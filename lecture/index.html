@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> <!-- 바벨이 바꿔 쓰는 문법을 지원해줌-->
+        <title></title>
+    </head>
+    <body>
+        <div id="root"></div> <!--결과: <div id="root"><button>Like</button></div-->
+        <script type="text/babel">
+            const e = React.createElement;
+
+            // component 생성
+            class LikeButton extends React.Component {
+                // 컴포넌트 가장 먼저 실행될때
+                constructor(props) {
+                    super(props);
+
+                    // 상태표시
+                    // 바뀔 여지가 있는 부분이 state 
+                    this.state = {
+                        liked: false
+                    }  
+                        
+                }
+
+                // 이처럼 바꿔 쓸 수 있음
+                render() {
+                    return <button 
+                        type="submit" 
+                        onClick={() => { this.setState({ liked: true })}}
+                        >{ this.state.liked === true ? 'Liked' : 'Like'}</button>
+                        // JSX ( JS + XML )
+                }
+                
+
+                // 어떻게 화면에 표시할지 결정하는 매서드 render()
+                // render() {              // 속성 들어가는 부분 - 대문자 주의
+                //     return e('button', 
+                //             { onClick: () => { this.setState({ liked: true })}, type:'submit'}, 
+                //             this.state.liked === true ? 'Liked' : 'Like'
+                //     ); 
+                //           // <button onclick="() => { console.log('clicked')}" type="submit">Like</button> 같은 태그를 만들'겠다'.
+                // }
+            }
+        </script>
+        <script type="text/babel">
+            // ReactDOM 이 위에 쓴걸 화면에 반영해줌
+            // component를 root 안에 그린다.
+            
+            
+            // 바꿔쓸 수 있음   // ※닫는괄호주의
+            ReactDOM.render(<div><LikeButton /><LikeButton /><LikeButton /></div>, document.querySelector('#root'));
+            // ReactDOM.render(e(LikeButton), document.querySelector('#root'));
+        </script>
+</body>
+</html>
