@@ -1,0 +1,91 @@
+불변성을 지키면서 배열에 새 항목을 추가하는 방법은 두가지가 있습니다.
+
+첫번째는 spread 연산자를 사용하는 것 입니다.
+
+const onCreate = () => {
+    const user = {
+      id: nextId.current,
+      username,
+      email
+    };
+    setUsers([...users, user]);
+
+    setInputs({
+      username: '',
+      email: ''
+    });
+    nextId.current += 1;
+  };
+
+
+
+
+또 다른 방법은 concat 함수를 사용하는 것 입니다. concat 함수는 기존의 배열을 수정하지 않고, 새로운 원소가 추가된 새로운 배열을 만들어줍니다.
+
+배열에서 조건에 true인 항목들로 새로운 배열을 리턴
+
+array.filter(obj => obj.data !== data);
+
+obj.data 와 같으면 false가 되어 새로운 배열에서 제외된다.
+
+
+질문 ------
+onClick={() => onRemove(user.id)} 이 코드는 잘 동작하는데
+onClick={onRemove(user.id)} 이 코드는 왜 동작하지 않는건가요?
+
+답변 ---
+onClick={someFunction()} 을 해버리면 해당 콤포넌트가 렌더링이 되는것과 동시에 someFunction함수를 실행시켜버립니다.
+
+그래서 보통 onClick={someFunction} 으로 지정해서 () 를 제외하는 방법으로 함수가 즉시실행 되지 않게 하고, 클릭했을때 실행이 되도록 해주죠
+
+그런데 예제와 같이 onRemove의 경우, 해당 함수가 실행될 떄 아이디 값도 받아와야 하잖아요.
+이런 경우에 onClick = { onRemove(user.id) } 를 해버리면, 해당 콤포넌트가 렌더링됨가 동시에 이 함수 실행이 되어버려서 아마 아무것도 렌더링이 되어버리지 않을거에요. 콘솔에서도 오류메시지가 발생할거구요.
+
+따라서 이런 문제들을 해결하기 위해 onClick에 콜백 함수를 넣어주고, 해당 함수가 실행될 때 user.id를 건네주어 실행시키는 방법으로 처리를 하는거에요
+
+
+useEffect
+  useEffect 를 사용 할 때에는 첫번째 파라미터에는 함수, 두번째 파라미터에는  의존값이 들어있는 배열 (deps)을 넣습니다. 만약에 deps 배열을 비우게 된다면, 컴포넌트가 처음 나타날때에만 useEffect 에 등록한 함수가 호출됩니다.
+
+  그리고, useEffect 에서는 함수를 반환 할 수 있는데 이를 cleanup 함수라고 부릅니다. cleanup 함수는 useEffect 에 대한 뒷정리를 해준다고 이해하시면 되는데요, deps 가 비어있는 경우에는 컴포넌트가 사라질 때 cleanup 함수가 호출됩니다.
+
+useMemo(() => 연산정의 ,[deps])
+  useMemo 의 첫번째 파라미터에는 어떻게 연산할지 정의하는 함수를 넣어주면 되고 두번째 파라미터에는 deps 배열을 넣어주면 되는데, 이 배열 안에 넣은 내용이 바뀌면, 우리가 등록한 함수를 호출해서 값을 연산해주고, 만약에 내용이 바뀌지 않았다면 이전에 연산한 값을 재사용하게 됩니다
+
+
+  useMemo 사용 전 예시에서 input 의 값을 바꿀 때 countActiveUsers 함수가 호출되는 이유가 궁금합니다.
+
+  답변 : 이메일을 입력한다고 치면 CreateUser 컴포넌트의 email이라는 속성(props)가 바뀌게 되는데 이 값은 원래 App 컴포넌트의 state입니다. 결국 input에 입력하는 행위는 App Component의 state를 바꾸게 되는 행위죠.
+  App의 State가 변경됐으니 App Component가 다시 렌더링되면서 countActiveUsers가 실행되면서 호출이 됩니다.
+
+  useMemo 는 특정 결과값을 재사용 할 때 사용하는 반면, useCallback 은 특정 함수를 새로 만들지 않고 재사용하고 싶을때 사용합니다.
+  
+useCallback
+
+
+
+
+useReducer
+
+  컴포넌트의 상태 업데이트 로직을 컴포넌트에서 분리시킬 수 있습니다.
+  상태 업데이트 로직을 컴포넌트 바깥에 작성 할 수도 있고, 심지어 다른 파일에 작성 후 불러와서 사용 할 수도 있다.
+
+  reducer 는 현재 상태와 액션 객체를 파라미터로 받아와서 새로운 상태를 반환해주는 함수입니다.
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  state : 앞으로 컴포넌트에서 사용할 수 있는 상태
+  dispatch : 액션을 발생시키는 함수 - dispatch({type : 'INCREMENT' });
+
+  useReducer(reducer함수, 초기상태);
+
+  const onCreate = useCallback(() => {
+        dispatch({
+            type: 'CREATE_USER',
+            user: {
+                id: nextId.current,
+                username,
+                email
+            }
+        })
+    }, [username, email]);
